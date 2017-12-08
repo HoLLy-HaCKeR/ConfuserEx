@@ -11,15 +11,11 @@ namespace Confuser.Protections.Compress {
 	internal class ExtractPhase : ProtectionPhase {
 		public ExtractPhase(Compressor parent) : base(parent) { }
 
-		public override ProtectionTargets Targets {
-			get { return ProtectionTargets.Modules; }
-		}
+		public override ProtectionTargets Targets => ProtectionTargets.Modules;
 
-		public override string Name {
-			get { return "Packer info extraction"; }
-		}
+	    public override string Name => "Packer info extraction";
 
-		protected override void Execute(ConfuserContext context, ProtectionParameters parameters) {
+	    protected override void Execute(ConfuserContext context, ProtectionParameters parameters) {
 			if (context.Packer == null)
 				return;
 

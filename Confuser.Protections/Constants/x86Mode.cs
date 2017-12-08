@@ -15,8 +15,7 @@ namespace Confuser.Protections.Constants {
 		Action<uint[], uint[]> encryptFunc;
 
 		public IEnumerable<Instruction> EmitDecrypt(MethodDef init, CEContext ctx, Local block, Local key) {
-			StatementBlock encrypt, decrypt;
-			ctx.DynCipher.GenerateCipherPair(ctx.Random, out encrypt, out decrypt);
+		    ctx.DynCipher.GenerateCipherPair(ctx.Random, out StatementBlock encrypt, out StatementBlock decrypt);
 			var ret = new List<Instruction>();
 
 			var codeGen = new CipherCodeGen(block, key, init, ret);
@@ -108,7 +107,7 @@ namespace Confuser.Protections.Constants {
 						new VariableExpression { Variable = var }, new VariableExpression { Variable = result },
 						4, out expression, out inverse);
 
-					reg = codeGen.GenerateX86(inverse, (v, r) => { return new[] { x86Instruction.Create(x86OpCode.POP, new x86RegisterOperand(r)) }; });
+					reg = codeGen.GenerateX86(inverse, (v, r) => new[] { x86Instruction.Create(x86OpCode.POP, new x86RegisterOperand(r)) });
 				} while (reg == null);
 
 				code = CodeGenUtils.AssembleCode(codeGen, reg.Value);

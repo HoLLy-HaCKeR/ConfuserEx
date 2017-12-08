@@ -16,27 +16,17 @@ namespace Confuser.Protections {
 		public const string _ServiceId = "Ki.AntiTamper";
 		static readonly object HandlerKey = new object();
 
-		public override string Name {
-			get { return "Anti Tamper Protection"; }
-		}
+		public override string Name => "Anti Tamper Protection";
 
-		public override string Description {
-			get { return "This protection ensures the integrity of application."; }
-		}
+	    public override string Description => "This protection ensures the integrity of application.";
 
-		public override string Id {
-			get { return _Id; }
-		}
+	    public override string Id => _Id;
 
-		public override string FullId {
-			get { return _FullId; }
-		}
+	    public override string FullId => _FullId;
 
-		public override ProtectionPreset Preset {
-			get { return ProtectionPreset.Maximum; }
-		}
+	    public override ProtectionPreset Preset => ProtectionPreset.Maximum;
 
-		protected override void Initialize(ConfuserContext context) {
+	    protected override void Initialize(ConfuserContext context) {
 			context.Registry.RegisterService(_ServiceId, typeof(IAntiTamperService), this);
 		}
 
@@ -53,15 +43,11 @@ namespace Confuser.Protections {
 			public InjectPhase(AntiTamperProtection parent)
 				: base(parent) { }
 
-			public override ProtectionTargets Targets {
-				get { return ProtectionTargets.Methods; }
-			}
+			public override ProtectionTargets Targets => ProtectionTargets.Methods;
 
-			public override string Name {
-				get { return "Anti-tamper helpers injection"; }
-			}
+		    public override string Name => "Anti-tamper helpers injection";
 
-			protected override void Execute(ConfuserContext context, ProtectionParameters parameters) {
+		    protected override void Execute(ConfuserContext context, ProtectionParameters parameters) {
 				if (!parameters.Targets.Any())
 					return;
 
@@ -86,15 +72,11 @@ namespace Confuser.Protections {
 			public MDPhase(AntiTamperProtection parent)
 				: base(parent) { }
 
-			public override ProtectionTargets Targets {
-				get { return ProtectionTargets.Methods; }
-			}
+			public override ProtectionTargets Targets => ProtectionTargets.Methods;
 
-			public override string Name {
-				get { return "Anti-tamper metadata preparation"; }
-			}
+		    public override string Name => "Anti-tamper metadata preparation";
 
-			protected override void Execute(ConfuserContext context, ProtectionParameters parameters) {
+		    protected override void Execute(ConfuserContext context, ProtectionParameters parameters) {
 				if (!parameters.Targets.Any())
 					return;
 

@@ -25,23 +25,15 @@ namespace Confuser.Protections {
 		public const string _ServiceId = "Ki.Compressor";
 		public static readonly object ContextKey = new object();
 
-		public override string Name {
-			get { return "Compressing Packer"; }
-		}
+		public override string Name => "Compressing Packer";
 
-		public override string Description {
-			get { return "This packer reduces the size of output."; }
-		}
+	    public override string Description => "This packer reduces the size of output.";
 
-		public override string Id {
-			get { return _Id; }
-		}
+	    public override string Id => _Id;
 
-		public override string FullId {
-			get { return _FullId; }
-		}
+	    public override string FullId => _FullId;
 
-		protected override void Initialize(ConfuserContext context) { }
+	    protected override void Initialize(ConfuserContext context) { }
 
 		protected override void PopulatePipeline(ProtectionPipeline pipeline) {
 			pipeline.InsertPreStage(PipelineStage.WriteModule, new ExtractPhase(this));

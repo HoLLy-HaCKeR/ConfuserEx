@@ -12,27 +12,17 @@ namespace Confuser.Protections {
 		public const string _Id = "invalid metadata";
 		public const string _FullId = "Ki.InvalidMD";
 
-		public override string Name {
-			get { return "Invalid Metadata Protection"; }
-		}
+		public override string Name => "Invalid Metadata Protection";
 
-		public override string Description {
-			get { return "This protection adds invalid metadata to modules to prevent disassembler/decompiler from opening them."; }
-		}
+	    public override string Description => "This protection adds invalid metadata to modules to prevent disassembler/decompiler from opening them.";
 
-		public override string Id {
-			get { return _Id; }
-		}
+	    public override string Id => _Id;
 
-		public override string FullId {
-			get { return _FullId; }
-		}
+	    public override string FullId => _FullId;
 
-		public override ProtectionPreset Preset {
-			get { return ProtectionPreset.None; }
-		}
+	    public override ProtectionPreset Preset => ProtectionPreset.None;
 
-		protected override void Initialize(ConfuserContext context) {
+	    protected override void Initialize(ConfuserContext context) {
 			//
 		}
 
@@ -46,15 +36,11 @@ namespace Confuser.Protections {
 			public InvalidMDPhase(InvalidMetadataProtection parent)
 				: base(parent) { }
 
-			public override ProtectionTargets Targets {
-				get { return ProtectionTargets.Modules; }
-			}
+			public override ProtectionTargets Targets => ProtectionTargets.Modules;
 
-			public override string Name {
-				get { return "Invalid metadata addition"; }
-			}
+		    public override string Name => "Invalid metadata addition";
 
-			protected override void Execute(ConfuserContext context, ProtectionParameters parameters) {
+		    protected override void Execute(ConfuserContext context, ProtectionParameters parameters) {
 				if (parameters.Targets.Contains(context.CurrentModule)) {
 					random = context.Registry.GetService<IRandomService>().GetRandomGenerator(_FullId);
 					context.CurrentModuleWriterListener.OnWriterEvent += OnWriterEvent;
@@ -150,11 +136,9 @@ namespace Confuser.Protections {
 				this.content = content;
 			}
 
-			public override string Name {
-				get { return name; }
-			}
+			public override string Name => name;
 
-			public override uint GetRawLength() {
+		    public override uint GetRawLength() {
 				return (uint)content.Length;
 			}
 

@@ -84,8 +84,8 @@ namespace Confuser.Protections.AntiTamper {
 			var marker = context.Registry.GetService<IMarkerService>();
 			foreach (IDnlibDef def in members) {
 				name.MarkHelper(def, marker, parent);
-				if (def is MethodDef)
-					parent.ExcludeMethod(context, (MethodDef)def);
+				if (def is MethodDef method)
+					parent.ExcludeMethod(context, method);
 			}
 
 			MethodDef cctor = context.CurrentModule.GlobalType.FindStaticConstructor();
@@ -141,8 +141,7 @@ namespace Confuser.Protections.AntiTamper {
 				peSection.Add(writer.StrongNameSignature, alignment);
 				moved = true;
 			}
-			var managedWriter = writer as ModuleWriter;
-			if (managedWriter != null) {
+		    if (writer is ModuleWriter managedWriter) {
 				if (managedWriter.ImportAddressTable != null) {
 					alignment = writer.TextSection.Remove(managedWriter.ImportAddressTable).Value;
 					peSection.Add(managedWriter.ImportAddressTable, alignment);

@@ -60,8 +60,7 @@ namespace Confuser.Protections.ReferenceProxy {
 		}
 
 		protected static TypeDef GetDelegateType(RPContext ctx, MethodSig sig) {
-			TypeDef ret;
-			if (ctx.Delegates.TryGetValue(sig, out ret))
+		    if (ctx.Delegates.TryGetValue(sig, out TypeDef ret))
 				return ret;
 
 			ret = new TypeDefUser(ctx.Name.ObfuscateName(ctx.Method.DeclaringType.Namespace, RenameMode.Unicode), ctx.Name.RandomName(), ctx.Module.CorLibTypes.GetTypeRef("System", "MulticastDelegate"));

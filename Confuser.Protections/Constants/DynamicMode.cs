@@ -13,8 +13,7 @@ namespace Confuser.Protections.Constants {
 		Action<uint[], uint[]> encryptFunc;
 
 		public IEnumerable<Instruction> EmitDecrypt(MethodDef init, CEContext ctx, Local block, Local key) {
-			StatementBlock encrypt, decrypt;
-			ctx.DynCipher.GenerateCipherPair(ctx.Random, out encrypt, out decrypt);
+		    ctx.DynCipher.GenerateCipherPair(ctx.Random, out StatementBlock encrypt, out StatementBlock decrypt);
 			var ret = new List<Instruction>();
 
 			var codeGen = new CodeGen(block, key, init, ret);

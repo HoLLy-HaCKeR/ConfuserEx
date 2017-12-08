@@ -16,15 +16,11 @@ namespace Confuser.Protections.Constants {
 		public InjectPhase(ConstantProtection parent)
 			: base(parent) { }
 
-		public override ProtectionTargets Targets {
-			get { return ProtectionTargets.Methods; }
-		}
+		public override ProtectionTargets Targets => ProtectionTargets.Methods;
 
-		public override string Name {
-			get { return "Constant encryption helpers injection"; }
-		}
+	    public override string Name => "Constant encryption helpers injection";
 
-		protected override void Execute(ConfuserContext context, ProtectionParameters parameters) {
+	    protected override void Execute(ConfuserContext context, ProtectionParameters parameters) {
 			if (parameters.Targets.Any()) {
 				var compression = context.Registry.GetService<ICompressionService>();
 				var name = context.Registry.GetService<INameService>();

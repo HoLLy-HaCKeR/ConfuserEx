@@ -14,15 +14,11 @@ namespace Confuser.Protections.ReferenceProxy {
 		public ReferenceProxyPhase(ReferenceProxyProtection parent)
 			: base(parent) { }
 
-		public override ProtectionTargets Targets {
-			get { return ProtectionTargets.Methods; }
-		}
+		public override ProtectionTargets Targets => ProtectionTargets.Methods;
 
-		public override string Name {
-			get { return "Encoding reference proxies"; }
-		}
+	    public override string Name => "Encoding reference proxies";
 
-		RPContext ParseParameters(MethodDef method, ConfuserContext context, ProtectionParameters parameters, RPStore store) {
+	    RPContext ParseParameters(MethodDef method, ConfuserContext context, ProtectionParameters parameters, RPStore store) {
 			var ret = new RPContext();
 			ret.Mode = parameters.GetParameter(context, method, "mode", Mode.Mild);
 			ret.Encoding = parameters.GetParameter(context, method, "encoding", EncodingType.Normal);
@@ -111,11 +107,8 @@ namespace Confuser.Protections.ReferenceProxy {
 
 			RPContext ctx = ParseParameters(context.CurrentModule, context, parameters, store);
 
-			if (store.mild != null)
-				store.mild.Finalize(ctx);
-
-			if (store.strong != null)
-				store.strong.Finalize(ctx);
+		    store.mild?.Finalize(ctx);
+		    store.strong?.Finalize(ctx);
 		}
 
 		void ProcessMethod(RPContext ctx) {

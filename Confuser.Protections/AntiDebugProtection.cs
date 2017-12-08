@@ -14,27 +14,17 @@ namespace Confuser.Protections {
 		public const string _Id = "anti debug";
 		public const string _FullId = "Ki.AntiDebug";
 
-		public override string Name {
-			get { return "Anti Debug Protection"; }
-		}
+		public override string Name => "Anti Debug Protection";
 
-		public override string Description {
-			get { return "This protection prevents the assembly from being debugged or profiled."; }
-		}
+	    public override string Description => "This protection prevents the assembly from being debugged or profiled.";
 
-		public override string Id {
-			get { return _Id; }
-		}
+	    public override string Id => _Id;
 
-		public override string FullId {
-			get { return _FullId; }
-		}
+	    public override string FullId => _FullId;
 
-		public override ProtectionPreset Preset {
-			get { return ProtectionPreset.Minimum; }
-		}
+	    public override ProtectionPreset Preset => ProtectionPreset.Minimum;
 
-		protected override void Initialize(ConfuserContext context) {
+	    protected override void Initialize(ConfuserContext context) {
 			//
 		}
 
@@ -46,15 +36,11 @@ namespace Confuser.Protections {
 			public AntiDebugPhase(AntiDebugProtection parent)
 				: base(parent) { }
 
-			public override ProtectionTargets Targets {
-				get { return ProtectionTargets.Modules; }
-			}
+			public override ProtectionTargets Targets => ProtectionTargets.Modules;
 
-			public override string Name {
-				get { return "Anti-debug injection"; }
-			}
+		    public override string Name => "Anti-debug injection";
 
-			protected override void Execute(ConfuserContext context, ProtectionParameters parameters) {
+		    protected override void Execute(ConfuserContext context, ProtectionParameters parameters) {
 				var rt = context.Registry.GetService<IRuntimeService>();
 				var marker = context.Registry.GetService<IMarkerService>();
 				var name = context.Registry.GetService<INameService>();
@@ -98,9 +84,8 @@ namespace Confuser.Protections {
 						name.Analyze(member);
 
 						bool ren = true;
-						if (member is MethodDef) {
-							var method = (MethodDef)member;
-							if (method.Access == MethodAttributes.Public)
+						if (member is MethodDef method) {
+						    if (method.Access == MethodAttributes.Public)
 								method.Access = MethodAttributes.Assembly;
 							if (!method.IsConstructor)
 								method.IsSpecialName = false;
@@ -111,8 +96,7 @@ namespace Confuser.Protections {
 							if (ca != null)
 								ca.Constructor = attr.FindMethod(".ctor");
 						}
-						else if (member is FieldDef) {
-							var field = (FieldDef)member;
+						else if (member is FieldDef field) {
 							if (field.Access == FieldAttributes.Public)
 								field.Access = FieldAttributes.Assembly;
 							if (field.IsLiteral) {

@@ -55,15 +55,15 @@ namespace Confuser.Protections.ControlFlow {
 
 		public Instruction GetFirstInstr() {
 			BlockBase firstBlock = Children.First();
-			if (firstBlock is ScopeBlock)
-				return ((ScopeBlock)firstBlock).GetFirstInstr();
+			if (firstBlock is ScopeBlock sb)
+				return sb.GetFirstInstr();
 			return ((InstrBlock)firstBlock).Instructions.First();
 		}
 
 		public Instruction GetLastInstr() {
 			BlockBase firstBlock = Children.Last();
-			if (firstBlock is ScopeBlock)
-				return ((ScopeBlock)firstBlock).GetLastInstr();
+			if (firstBlock is ScopeBlock sb)
+				return sb.GetLastInstr();
 			return ((InstrBlock)firstBlock).Instructions.Last();
 		}
 

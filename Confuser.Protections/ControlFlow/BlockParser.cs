@@ -53,27 +53,23 @@ namespace Confuser.Protections.ControlFlow {
 					ScopeBlock parent = scopeStack.Count > 0 ? scopeStack.Peek() : null;
 
 					if (instr == eh.TryStart) {
-						if (parent != null)
-							parent.Children.Add(ehScope.Item1);
-						scopeStack.Push(ehScope.Item1);
+					    parent?.Children.Add(ehScope.Item1);
+					    scopeStack.Push(ehScope.Item1);
 					}
 
 					if (instr == eh.HandlerStart) {
-						if (parent != null)
-							parent.Children.Add(ehScope.Item2);
-						scopeStack.Push(ehScope.Item2);
+					    parent?.Children.Add(ehScope.Item2);
+					    scopeStack.Push(ehScope.Item2);
 					}
 
 					if (instr == eh.FilterStart) {
-						if (parent != null)
-							parent.Children.Add(ehScope.Item3);
-						scopeStack.Push(ehScope.Item3);
+					    parent?.Children.Add(ehScope.Item3);
+					    scopeStack.Push(ehScope.Item3);
 					}
 				}
 
 				ScopeBlock scope = scopeStack.Peek();
-				var block = scope.Children.LastOrDefault() as InstrBlock;
-				if (block == null)
+			    if (!(scope.Children.LastOrDefault() is InstrBlock block))
 					scope.Children.Add(block = new InstrBlock());
 				block.Instructions.Add(instr);
 			}

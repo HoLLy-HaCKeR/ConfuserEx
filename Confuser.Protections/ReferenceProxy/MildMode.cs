@@ -21,8 +21,7 @@ namespace Confuser.Protections.ReferenceProxy {
 				return;
 
 			Tuple<Code, TypeDef, IMethod> key = Tuple.Create(invoke.OpCode.Code, ctx.Method.DeclaringType, target);
-			MethodDef proxy;
-			if (!proxies.TryGetValue(key, out proxy)) {
+		    if (!proxies.TryGetValue(key, out MethodDef proxy)) {
 				MethodSig sig = CreateProxySignature(ctx, target, invoke.OpCode.Code == Code.Newobj);
 
 				proxy = new MethodDefUser(ctx.Name.RandomName(), sig);
@@ -42,9 +41,9 @@ namespace Confuser.Protections.ReferenceProxy {
 				ctx.Name.SetCanRename(proxy, false);
 
 				proxy.Body = new CilBody();
-				for (int i = 0; i < proxy.Parameters.Count; i++)
-					proxy.Body.Instructions.Add(Instruction.Create(OpCodes.Ldarg, proxy.Parameters[i]));
-				proxy.Body.Instructions.Add(Instruction.Create(invoke.OpCode, target));
+				foreach (Parameter parm in proxy.Parameters)
+				    proxy.Body.Instructions.Add(Instruction.Create(OpCodes.Ldarg, parm));
+		        proxy.Body.Instructions.Add(Instruction.Create(invoke.OpCode, target));
 				proxy.Body.Instructions.Add(Instruction.Create(OpCodes.Ret));
 
 				proxies[key] = proxy;

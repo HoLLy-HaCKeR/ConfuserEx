@@ -14,27 +14,17 @@ namespace Confuser.Protections {
 		public const string _Id = "anti dump";
 		public const string _FullId = "Ki.AntiDump";
 
-		public override string Name {
-			get { return "Anti Dump Protection"; }
-		}
+		public override string Name => "Anti Dump Protection";
 
-		public override string Description {
-			get { return "This protection prevents the assembly from being dumped from memory."; }
-		}
+	    public override string Description => "This protection prevents the assembly from being dumped from memory.";
 
-		public override string Id {
-			get { return _Id; }
-		}
+	    public override string Id => _Id;
 
-		public override string FullId {
-			get { return _FullId; }
-		}
+	    public override string FullId => _FullId;
 
-		public override ProtectionPreset Preset {
-			get { return ProtectionPreset.Maximum; }
-		}
+	    public override ProtectionPreset Preset => ProtectionPreset.Maximum;
 
-		protected override void Initialize(ConfuserContext context) {
+	    protected override void Initialize(ConfuserContext context) {
 			//
 		}
 
@@ -46,15 +36,11 @@ namespace Confuser.Protections {
 			public AntiDumpPhase(AntiDumpProtection parent)
 				: base(parent) { }
 
-			public override ProtectionTargets Targets {
-				get { return ProtectionTargets.Modules; }
-			}
+			public override ProtectionTargets Targets => ProtectionTargets.Modules;
 
-			public override string Name {
-				get { return "Anti-dump injection"; }
-			}
+		    public override string Name => "Anti-dump injection";
 
-			protected override void Execute(ConfuserContext context, ProtectionParameters parameters) {
+		    protected override void Execute(ConfuserContext context, ProtectionParameters parameters) {
 				TypeDef rtType = context.Registry.GetService<IRuntimeService>().GetRuntimeType("Confuser.Runtime.AntiDump");
 
 				var marker = context.Registry.GetService<IMarkerService>();

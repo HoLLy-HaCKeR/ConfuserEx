@@ -47,8 +47,7 @@ namespace Confuser.Protections.ReferenceProxy {
 						return null;
 				}
 
-				int push, pop;
-				currentInstr.CalculateStackUsage(out push, out pop);
+			    currentInstr.CalculateStackUsage(out int push, out int pop);
 				currentStack += pop;
 				currentStack -= push;
 
@@ -70,8 +69,7 @@ namespace Confuser.Protections.ReferenceProxy {
 			if (declType.IsGlobalModuleType) // Reflection doesn't like global methods too.
 				return;
 
-			int push, pop;
-			invoke.CalculateStackUsage(out push, out pop);
+		    invoke.CalculateStackUsage(out int push, out int pop);
 			int? begin = TraceBeginning(ctx, instrIndex, pop);
 			// Fail to trace the arguments => fall back to bridge method
 			bool fallBack = begin == null;
@@ -95,8 +93,7 @@ namespace Confuser.Protections.ReferenceProxy {
 				return;
 
 			Tuple<Code, IMethod, IRPEncoding> key = Tuple.Create(instr.OpCode.Code, target, ctx.EncodingHandler);
-			Tuple<FieldDef, MethodDef> proxy;
-			if (fields.TryGetValue(key, out proxy)) {
+		    if (fields.TryGetValue(key, out var proxy)) {
 				if (proxy.Item2 != null) {
 					instr.OpCode = OpCodes.Call;
 					instr.Operand = proxy.Item2;
@@ -141,8 +138,7 @@ namespace Confuser.Protections.ReferenceProxy {
 			TypeDef delegateType = GetDelegateType(ctx, sig);
 
 			Tuple<Code, IMethod, IRPEncoding> key = Tuple.Create(instr.OpCode.Code, target, ctx.EncodingHandler);
-			Tuple<FieldDef, MethodDef> proxy;
-			if (!fields.TryGetValue(key, out proxy)) {
+		    if (!fields.TryGetValue(key, out var proxy)) {
 				// Create proxy field
 				proxy = new Tuple<FieldDef, MethodDef>(CreateField(ctx, delegateType), null);
 				fields[key] = proxy;
@@ -178,9 +174,9 @@ namespace Confuser.Protections.ReferenceProxy {
 
 			method.Body = new CilBody();
 			method.Body.Instructions.Add(Instruction.Create(OpCodes.Ldsfld, field));
-			for (int i = 0; i < method.Parameters.Count; i++)
-				method.Body.Instructions.Add(Instruction.Create(OpCodes.Ldarg, method.Parameters[i]));
-			method.Body.Instructions.Add(Instruction.Create(OpCodes.Call, delegateType.FindMethod("Invoke")));
+			foreach (Parameter param in method.Parameters)
+			    method.Body.Instructions.Add(Instruction.Create(OpCodes.Ldarg, param));
+		    method.Body.Instructions.Add(Instruction.Create(OpCodes.Call, delegateType.FindMethod("Invoke")));
 			method.Body.Instructions.Add(Instruction.Create(OpCodes.Ret));
 
 			delegateType.Methods.Add(method);
@@ -221,14 +217,13 @@ namespace Confuser.Protections.ReferenceProxy {
 				injectedAttr.Name = ctx.Name.RandomName();
 				injectedAttr.Namespace = string.Empty;
 
-				Expression expression, inverse;
-				var var = new Variable("{VAR}");
+			    var var = new Variable("{VAR}");
 				var result = new Variable("{RESULT}");
 
 				ctx.DynCipher.GenerateExpressionPair(
 					ctx.Random,
 					new VariableExpression { Variable = var }, new VariableExpression { Variable = result },
-					ctx.Depth, out expression, out inverse);
+					ctx.Depth, out Expression expression, out Expression inverse);
 
 				var expCompiled = new DMCodeGen(typeof(int), new[] { Tuple.Create("{VAR}", typeof(int)) })
 					.GenerateCIL(expression)
@@ -257,8 +252,7 @@ namespace Confuser.Protections.ReferenceProxy {
 		}
 
 		InitMethodDesc GetInitMethod(RPContext ctx, IRPEncoding encoding) {
-			InitMethodDesc[] initDescs;
-			if (!inits.TryGetValue(encoding, out initDescs))
+		    if (!inits.TryGetValue(encoding, out InitMethodDesc[] initDescs))
 				inits[encoding] = initDescs = new InitMethodDesc[ctx.InitCount];
 
 			int index = ctx.Random.NextInt32(initDescs.Length);
@@ -291,7 +285,7 @@ namespace Confuser.Protections.ReferenceProxy {
 				MutationHelper.InjectKeys(injectedMethod, Enumerable.Range(0, 9).ToArray(), keyInjection);
 
 				// Encoding
-				MutationHelper.ReplacePlaceholder(injectedMethod, arg => { return encoding.EmitDecode(injectedMethod, ctx, arg); });
+				MutationHelper.ReplacePlaceholder(injectedMethod, arg => encoding.EmitDecode(injectedMethod, ctx, arg));
 				desc.Encoding = encoding;
 
 				initDescs[index] = desc;

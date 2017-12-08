@@ -20,27 +20,17 @@ namespace Confuser.Protections {
 		internal static object TargetExcluded = new object();
 		internal static object Targeted = new object();
 
-		public override string Name {
-			get { return "Reference Proxy Protection"; }
-		}
+		public override string Name => "Reference Proxy Protection";
 
-		public override string Description {
-			get { return "This protection encodes and hides references to type/method/fields."; }
-		}
+	    public override string Description => "This protection encodes and hides references to type/method/fields.";
 
-		public override string Id {
-			get { return _Id; }
-		}
+	    public override string Id => _Id;
 
-		public override string FullId {
-			get { return _FullId; }
-		}
+	    public override string FullId => _FullId;
 
-		public override ProtectionPreset Preset {
-			get { return ProtectionPreset.Normal; }
-		}
+	    public override ProtectionPreset Preset => ProtectionPreset.Normal;
 
-		public void ExcludeMethod(ConfuserContext context, MethodDef method) {
+	    public void ExcludeMethod(ConfuserContext context, MethodDef method) {
 			ProtectionParameters.GetParameters(context, method).Remove(this);
 		}
 

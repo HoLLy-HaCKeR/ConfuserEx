@@ -132,8 +132,8 @@ namespace Confuser.Protections.AntiTamper {
 						dataType.Fields.Add(f);
 				}
 				name.MarkHelper(def, marker, parent);
-				if (def is MethodDef)
-					parent.ExcludeMethod(context, (MethodDef)def);
+				if (def is MethodDef method)
+					parent.ExcludeMethod(context, method);
 			}
 			parent.ExcludeMethod(context, cctor);
 		}
@@ -172,8 +172,7 @@ namespace Confuser.Protections.AntiTamper {
 				peSection.Add(writer.StrongNameSignature, alignment);
 				moved = true;
 			}
-			var managedWriter = writer as ModuleWriter;
-			if (managedWriter != null) {
+		    if (writer is ModuleWriter managedWriter) {
 				if (managedWriter.ImportAddressTable != null) {
 					alignment = writer.TextSection.Remove(managedWriter.ImportAddressTable).Value;
 					peSection.Add(managedWriter.ImportAddressTable, alignment);

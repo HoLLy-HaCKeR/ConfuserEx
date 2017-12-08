@@ -17,27 +17,17 @@ namespace Confuser.Protections.Compress {
 			this.originModule = originModule;
 		}
 
-		public override string Name {
-			get { return "Compressor Stub Protection"; }
-		}
+		public override string Name => "Compressor Stub Protection";
 
-		public override string Description {
-			get { return "Do some extra works on the protected stub."; }
-		}
+	    public override string Description => "Do some extra works on the protected stub.";
 
-		public override string Id {
-			get { return "Ki.Compressor.Protection"; }
-		}
+	    public override string Id => "Ki.Compressor.Protection";
 
-		public override string FullId {
-			get { return "Ki.Compressor.Protection"; }
-		}
+	    public override string FullId => "Ki.Compressor.Protection";
 
-		public override ProtectionPreset Preset {
-			get { return ProtectionPreset.None; }
-		}
+	    public override ProtectionPreset Preset => ProtectionPreset.None;
 
-		protected override void Initialize(ConfuserContext context) {
+	    protected override void Initialize(ConfuserContext context) {
 			//
 		}
 
@@ -51,19 +41,13 @@ namespace Confuser.Protections.Compress {
 			public InjPhase(StubProtection parent)
 				: base(parent) { }
 
-			public override ProtectionTargets Targets {
-				get { return ProtectionTargets.Modules; }
-			}
+			public override ProtectionTargets Targets => ProtectionTargets.Modules;
 
-			public override bool ProcessAll {
-				get { return true; }
-			}
+		    public override bool ProcessAll => true;
 
-			public override string Name {
-				get { return "Module injection"; }
-			}
+		    public override string Name => "Module injection";
 
-			protected override void Execute(ConfuserContext context, ProtectionParameters parameters) {
+		    protected override void Execute(ConfuserContext context, ProtectionParameters parameters) {
 				// Hack the origin module into the assembly to make sure correct type resolution
 				var originModule = ((StubProtection)Parent).originModule;
 				originModule.Assembly.Modules.Remove(originModule);
@@ -75,15 +59,11 @@ namespace Confuser.Protections.Compress {
 			public SigPhase(StubProtection parent)
 				: base(parent) { }
 
-			public override ProtectionTargets Targets {
-				get { return ProtectionTargets.Modules; }
-			}
+			public override ProtectionTargets Targets => ProtectionTargets.Modules;
 
-			public override string Name {
-				get { return "Packer info encoding"; }
-			}
+		    public override string Name => "Packer info encoding";
 
-			protected override void Execute(ConfuserContext context, ProtectionParameters parameters) {
+		    protected override void Execute(ConfuserContext context, ProtectionParameters parameters) {
 				var field = context.CurrentModule.Types[0].FindField("DataField");
 				Debug.Assert(field != null);
 				context.Registry.GetService<INameService>().SetCanRename(field, true);

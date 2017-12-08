@@ -16,15 +16,11 @@ namespace Confuser.Protections.Resources {
 		public InjectPhase(ResourceProtection parent)
 			: base(parent) { }
 
-		public override ProtectionTargets Targets {
-			get { return ProtectionTargets.Methods; }
-		}
+		public override ProtectionTargets Targets => ProtectionTargets.Methods;
 
-		public override string Name {
-			get { return "Resource encryption helpers injection"; }
-		}
+	    public override string Name => "Resource encryption helpers injection";
 
-		protected override void Execute(ConfuserContext context, ProtectionParameters parameters) {
+	    protected override void Execute(ConfuserContext context, ProtectionParameters parameters) {
 			if (parameters.Targets.Any()) {
 				if (!UTF8String.IsNullOrEmpty(context.CurrentModule.Assembly.Culture)) {
 					context.Logger.DebugFormat("Skipping resource encryption for satellite assembly '{0}'.",

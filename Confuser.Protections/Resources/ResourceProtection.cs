@@ -9,27 +9,17 @@ namespace Confuser.Protections {
 		public const string _FullId = "Ki.Resources";
 		public const string _ServiceId = "Ki.Resources";
 
-		public override string Name {
-			get { return "Resources Protection"; }
-		}
+		public override string Name => "Resources Protection";
 
-		public override string Description {
-			get { return "This protection encodes and compresses the embedded resources."; }
-		}
+	    public override string Description => "This protection encodes and compresses the embedded resources.";
 
-		public override string Id {
-			get { return _Id; }
-		}
+	    public override string Id => _Id;
 
-		public override string FullId {
-			get { return _FullId; }
-		}
+	    public override string FullId => _FullId;
 
-		public override ProtectionPreset Preset {
-			get { return ProtectionPreset.Normal; }
-		}
+	    public override ProtectionPreset Preset => ProtectionPreset.Normal;
 
-		protected override void Initialize(ConfuserContext context) { }
+	    protected override void Initialize(ConfuserContext context) { }
 
 		protected override void PopulatePipeline(ProtectionPipeline pipeline) {
 			pipeline.InsertPreStage(PipelineStage.ProcessModule, new InjectPhase(this));

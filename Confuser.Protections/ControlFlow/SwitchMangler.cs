@@ -14,8 +14,7 @@ namespace Confuser.Protections.ControlFlow {
 			public Dictionary<uint, int> AfterStack;
 
 			static void Increment(Dictionary<uint, int> counts, uint key) {
-				int value;
-				if (!counts.TryGetValue(key, out value))
+			    if (!counts.TryGetValue(key, out int value))
 					value = 0;
 				counts[key] = value + 1;
 			}
@@ -100,15 +99,13 @@ namespace Confuser.Protections.ControlFlow {
 			}
 
 			public bool IsBranchTarget(uint offset) {
-				List<Instruction> src;
-				if (BrRefs.TryGetValue(offset, out src))
+			    if (BrRefs.TryGetValue(offset, out List<Instruction> src))
 					return src.Count > 0;
 				return false;
 			}
 
 			public bool HasMultipleSources(uint offset) {
-				int src;
-				if (RefCount.TryGetValue(offset, out src))
+			    if (RefCount.TryGetValue(offset, out int src))
 					return src > 1;
 				return false;
 			}
@@ -134,10 +131,10 @@ namespace Confuser.Protections.ControlFlow {
 					case FlowControl.Throw:
 						shouldSpilt = true;
 						if (trace.AfterStack[instr.Offset] != 0) {
-							if (instr.Operand is Instruction)
-								requiredInstr.Add((Instruction)instr.Operand);
-							else if (instr.Operand is Instruction[]) {
-								foreach (var target in (Instruction[])instr.Operand)
+							if (instr.Operand is Instruction instr2)
+								requiredInstr.Add(instr2);
+							else if (instr.Operand is Instruction[] instrArr) {
+								foreach (var target in instrArr)
 									requiredInstr.Add(target);
 							}
 						}
@@ -246,27 +243,25 @@ namespace Confuser.Protections.ControlFlow {
 
 				var statementLast = new HashSet<Instruction>(statements.Select(st => st.Last()));
 
-				Func<IList<Instruction>, bool> hasUnknownSource;
-				hasUnknownSource = instrs => instrs.Any(instr => {
-					if (trace.HasMultipleSources(instr.Offset))
-						return true;
-					List<Instruction> srcs;
-					if (trace.BrRefs.TryGetValue(instr.Offset, out srcs)) {
-						// Target of switch => assume unknown
-						if (srcs.Any(src => src.Operand is Instruction[]))
-							return true;
+			    Func<IList<Instruction>, bool> hasUnknownSource = instrs => instrs.Any(instr => {
+			        if (trace.HasMultipleSources(instr.Offset))
+			            return true;
+			        if (trace.BrRefs.TryGetValue(instr.Offset, out List<Instruction> srcs)) {
+			            // Target of switch => assume unknown
+			            if (srcs.Any(src => src.Operand is Instruction[]))
+			                return true;
 
-						// Not within current instruction block / targeted in first statement
-						if (srcs.Any(src => src.Offset <= statements.First.Value.Last().Offset ||
-						                    src.Offset >= block.Instructions.Last().Offset))
-							return true;
+			            // Not within current instruction block / targeted in first statement
+			            if (srcs.Any(src => src.Offset <= statements.First.Value.Last().Offset ||
+			                                src.Offset >= block.Instructions.Last().Offset))
+			                return true;
 
-						// Not targeted by the last of statements
-						if (srcs.Any(src => statementLast.Contains(src)))
-							return true;
-					}
-					return false;
-				});
+			            // Not targeted by the last of statements
+			            if (srcs.Any(src => statementLast.Contains(src)))
+			                return true;
+			        }
+			        return false;
+			    });
 
 				var switchInstr = new Instruction(OpCodes.Switch);
 				var switchHdr = new List<Instruction>();
@@ -303,10 +298,9 @@ namespace Confuser.Protections.ControlFlow {
 							// Unconditional
 
 							var target = (Instruction)newStatement.Last().Operand;
-							int brKey;
-							if (!trace.IsBranchTarget(newStatement.Last().Offset) &&
-							    statementKeys.TryGetValue(target, out brKey)) {
-								var targetKey = predicate != null ? predicate.GetSwitchKey(brKey) : brKey;
+						    if (!trace.IsBranchTarget(newStatement.Last().Offset) &&
+							    statementKeys.TryGetValue(target, out int brKey)) {
+								var targetKey = predicate?.GetSwitchKey(brKey) ?? brKey;
 								var unkSrc = hasUnknownSource(newStatement);
 
 								newStatement.RemoveAt(newStatement.Count - 1);
@@ -334,9 +328,8 @@ namespace Confuser.Protections.ControlFlow {
 							// Conditional
 
 							var target = (Instruction)newStatement.Last().Operand;
-							int brKey;
-							if (!trace.IsBranchTarget(newStatement.Last().Offset) &&
-							    statementKeys.TryGetValue(target, out brKey)) {
+						    if (!trace.IsBranchTarget(newStatement.Last().Offset) &&
+							    statementKeys.TryGetValue(target, out int brKey)) {
 								bool unkSrc = hasUnknownSource(newStatement);
 								int nextKey = key[i + 1];
 								OpCode condBr = newStatement.Last().OpCode;
@@ -349,15 +342,15 @@ namespace Confuser.Protections.ControlFlow {
 									nextKey = tmp;
 								}
 
-								var thisKey = key[i];
+								int thisKey = key[i];
 								int r = 0, xorKey = 0;
 								if (!unkSrc) {
 									r = ctx.Random.NextInt32();
 									xorKey = thisKey * r;
 								}
 
-								Instruction brKeyInstr = Instruction.CreateLdcI4(xorKey ^ (predicate != null ? predicate.GetSwitchKey(brKey) : brKey));
-								Instruction nextKeyInstr = Instruction.CreateLdcI4(xorKey ^ (predicate != null ? predicate.GetSwitchKey(nextKey) : nextKey));
+								Instruction brKeyInstr = Instruction.CreateLdcI4(xorKey ^ (predicate?.GetSwitchKey(brKey) ?? brKey));
+								Instruction nextKeyInstr = Instruction.CreateLdcI4(xorKey ^ (predicate?.GetSwitchKey(nextKey) ?? nextKey));
 								Instruction pop = Instruction.Create(OpCodes.Pop);
 
 								newStatement.Add(Instruction.Create(condBr, brKeyInstr));
@@ -385,7 +378,7 @@ namespace Confuser.Protections.ControlFlow {
 						if (!converted) {
 							// Normal
 
-							var targetKey = predicate != null ? predicate.GetSwitchKey(key[i + 1]) : key[i + 1];
+							var targetKey = predicate?.GetSwitchKey(key[i + 1]) ?? key[i + 1];
 							if (!hasUnknownSource(newStatement)) {
 								var thisKey = key[i];
 								var r = ctx.Random.NextInt32();

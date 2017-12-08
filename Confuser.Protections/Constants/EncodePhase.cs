@@ -16,15 +16,11 @@ namespace Confuser.Protections.Constants {
 		public EncodePhase(ConstantProtection parent)
 			: base(parent) { }
 
-		public override ProtectionTargets Targets {
-			get { return ProtectionTargets.Methods; }
-		}
+		public override ProtectionTargets Targets => ProtectionTargets.Methods;
 
-		public override string Name {
-			get { return "Constants encoding"; }
-		}
+	    public override string Name => "Constants encoding";
 
-		protected override void Execute(ConfuserContext context, ProtectionParameters parameters) {
+	    protected override void Execute(ConfuserContext context, ProtectionParameters parameters) {
 			var moduleCtx = context.Annotations.Get<CEContext>(context.CurrentModule, ConstantProtection.ContextKey);
 			if (!parameters.Targets.Any() || moduleCtx == null)
 				return;
@@ -44,24 +40,22 @@ namespace Confuser.Protections.Constants {
 				context.CheckCancellation();
 			}
 			foreach (var entry in ldc.WithProgress(context.Logger)) {
-				if (entry.Key is string) {
-					EncodeString(moduleCtx, (string)entry.Key, entry.Value);
+				if (entry.Key is string s) {
+					EncodeString(moduleCtx, s, entry.Value);
 				}
-				else if (entry.Key is int) {
-					EncodeConstant32(moduleCtx, (uint)(int)entry.Key, context.CurrentModule.CorLibTypes.Int32, entry.Value);
+				else if (entry.Key is int i) {
+					EncodeConstant32(moduleCtx, (uint)i, context.CurrentModule.CorLibTypes.Int32, entry.Value);
 				}
-				else if (entry.Key is long) {
-					EncodeConstant64(moduleCtx, (uint)((long)entry.Key >> 32), (uint)(long)entry.Key, context.CurrentModule.CorLibTypes.Int64, entry.Value);
+				else if (entry.Key is long l) {
+					EncodeConstant64(moduleCtx, (uint)(l >> 32), (uint)l, context.CurrentModule.CorLibTypes.Int64, entry.Value);
 				}
-				else if (entry.Key is float) {
-					var t = new RTransform();
-					t.R4 = (float)entry.Key;
-					EncodeConstant32(moduleCtx, t.Lo, context.CurrentModule.CorLibTypes.Single, entry.Value);
+				else if (entry.Key is float f) {
+				    var t = new RTransform {R4 = f};
+				    EncodeConstant32(moduleCtx, t.Lo, context.CurrentModule.CorLibTypes.Single, entry.Value);
 				}
-				else if (entry.Key is double) {
-					var t = new RTransform();
-					t.R8 = (double)entry.Key;
-					EncodeConstant64(moduleCtx, t.Hi, t.Lo, context.CurrentModule.CorLibTypes.Double, entry.Value);
+				else if (entry.Key is double d) {
+				    var t = new RTransform {R8 = d};
+				    EncodeConstant64(moduleCtx, t.Hi, t.Lo, context.CurrentModule.CorLibTypes.Double, entry.Value);
 				}
 				else
 					throw new UnreachableException();
@@ -219,8 +213,8 @@ namespace Confuser.Protections.Constants {
 			foreach (var type in context.CurrentModule.GetTypes())
 				foreach (var method in type.Methods.Where(m => m.HasBody)) {
 					foreach (var instr in method.Body.Instructions)
-						if (instr.Operand is FieldDef && !fieldRefs.Contains(instr))
-							dataFields.Remove((FieldDef)instr.Operand);
+						if (instr.Operand is FieldDef fd && !fieldRefs.Contains(instr))
+							dataFields.Remove(fd);
 				}
 
 			foreach (var fieldToRemove in dataFields) {

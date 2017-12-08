@@ -146,8 +146,7 @@ namespace Confuser.Protections.Constants {
 			// Cannot use graph.IndexOf because instructions has been modified.
 			int targetIndex = body.Instructions.IndexOf(block.Header);
 
-			CFGState entry;
-			if (!ctx.StatesMap.TryGetValue(key.EntryState, out entry)) {
+		    if (!ctx.StatesMap.TryGetValue(key.EntryState, out CFGState entry)) {
 				key.Type = BlockKeyType.Explicit;
 			}
 
@@ -155,8 +154,7 @@ namespace Confuser.Protections.Constants {
 			if (key.Type == BlockKeyType.Incremental) {
 				// Incremental
 
-				CFGState exit;
-				if (!ctx.StatesMap.TryGetValue(key.ExitState, out exit)) {
+			    if (!ctx.StatesMap.TryGetValue(key.ExitState, out var exit)) {
 					// Create new exit state
 					// Update one of the entry states to be exit state
 					exit = entry;
@@ -200,8 +198,7 @@ namespace Confuser.Protections.Constants {
 			else {
 				// Explicit
 
-				CFGState exit;
-				if (!ctx.StatesMap.TryGetValue(key.ExitState, out exit)) {
+			    if (!ctx.StatesMap.TryGetValue(key.ExitState, out CFGState exit)) {
 					// Create new exit state from random seed
 					var seed = ctx.Random.NextUInt32();
 					exit = new CFGState(seed);
@@ -365,26 +362,23 @@ namespace Confuser.Protections.Constants {
 				var index = graph.IndexOf(instr.Item1);
 				var block = graph.GetContainingBlock(index);
 
-				SortedList<int, Tuple<Instruction, uint, IMethod>> list;
-				if (!blockReferences.TryGetValue(block.Id, out list))
+			    if (!blockReferences.TryGetValue(block.Id, out var list))
 					list = blockReferences[block.Id] = new SortedList<int, Tuple<Instruction, uint, IMethod>>();
 
 				list.Add(index, instr);
 			}
 
 			// Update state for blocks not in use
-			for (int i = 0; i < graph.Count; i++) {
-				var block = graph[i];
-				if (blockReferences.ContainsKey(block.Id))
-					continue;
-				InsertEmptyStateUpdate(cfgCtx, block);
+			foreach (ControlFlowBlock block in graph) {
+			    if (blockReferences.ContainsKey(block.Id))
+			        continue;
+			    InsertEmptyStateUpdate(cfgCtx, block);
 			}
 
 			// Update references
 			foreach (var blockRef in blockReferences) {
 				var key = sequence[blockRef.Key];
-				CFGState currentState;
-				if (!cfgCtx.StatesMap.TryGetValue(key.EntryState, out currentState)) {
+			    if (!cfgCtx.StatesMap.TryGetValue(key.EntryState, out CFGState currentState)) {
 					Debug.Assert((graph[blockRef.Key].Type & ControlFlowBlockType.Entry) != 0);
 					Debug.Assert(key.Type == BlockKeyType.Explicit);
 
@@ -408,8 +402,7 @@ namespace Confuser.Protections.Constants {
 
 					CFGState? targetState = null;
 					if (i == blockRef.Value.Count - 1) {
-						CFGState exitState;
-						if (cfgCtx.StatesMap.TryGetValue(key.ExitState, out exitState))
+					    if (cfgCtx.StatesMap.TryGetValue(key.ExitState, out CFGState exitState))
 							targetState = exitState;
 					}
 

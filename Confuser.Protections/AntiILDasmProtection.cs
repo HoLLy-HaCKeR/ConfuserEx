@@ -8,27 +8,17 @@ namespace Confuser.Protections {
 		public const string _Id = "anti ildasm";
 		public const string _FullId = "Ki.AntiILDasm";
 
-		public override string Name {
-			get { return "Anti IL Dasm Protection"; }
-		}
+		public override string Name => "Anti IL Dasm Protection";
 
-		public override string Description {
-			get { return "This protection marks the module with a attribute that discourage ILDasm from disassembling it."; }
-		}
+	    public override string Description => "This protection marks the module with a attribute that discourage ILDasm from disassembling it.";
 
-		public override string Id {
-			get { return _Id; }
-		}
+	    public override string Id => _Id;
 
-		public override string FullId {
-			get { return _FullId; }
-		}
+	    public override string FullId => _FullId;
 
-		public override ProtectionPreset Preset {
-			get { return ProtectionPreset.Minimum; }
-		}
+	    public override ProtectionPreset Preset => ProtectionPreset.Minimum;
 
-		protected override void Initialize(ConfuserContext context) {
+	    protected override void Initialize(ConfuserContext context) {
 			//
 		}
 
@@ -40,15 +30,11 @@ namespace Confuser.Protections {
 			public AntiILDasmPhase(AntiILDasmProtection parent)
 				: base(parent) { }
 
-			public override ProtectionTargets Targets {
-				get { return ProtectionTargets.Modules; }
-			}
+			public override ProtectionTargets Targets => ProtectionTargets.Modules;
 
-			public override string Name {
-				get { return "Anti-ILDasm marking"; }
-			}
+		    public override string Name => "Anti-ILDasm marking";
 
-			protected override void Execute(ConfuserContext context, ProtectionParameters parameters) {
+		    protected override void Execute(ConfuserContext context, ProtectionParameters parameters) {
 				foreach (ModuleDef module in parameters.Targets.OfType<ModuleDef>()) {
 					TypeRef attrRef = module.CorLibTypes.GetTypeRef("System.Runtime.CompilerServices", "SuppressIldasmAttribute");
 					var ctorRef = new MemberRefUser(module, ".ctor", MethodSig.CreateInstance(module.CorLibTypes.Void), attrRef);

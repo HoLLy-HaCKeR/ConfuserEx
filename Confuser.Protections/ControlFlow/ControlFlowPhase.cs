@@ -17,15 +17,11 @@ namespace Confuser.Protections.ControlFlow {
 		public ControlFlowPhase(ControlFlowProtection parent)
 			: base(parent) { }
 
-		public override ProtectionTargets Targets {
-			get { return ProtectionTargets.Methods; }
-		}
+		public override ProtectionTargets Targets => ProtectionTargets.Methods;
 
-		public override string Name {
-			get { return "Control flow mangling"; }
-		}
+	    public override string Name => "Control flow mangling";
 
-		CFContext ParseParameters(MethodDef method, ConfuserContext context, ProtectionParameters parameters, RandomGenerator random, bool disableOpti) {
+	    CFContext ParseParameters(MethodDef method, ConfuserContext context, ProtectionParameters parameters, RandomGenerator random, bool disableOpti) {
 			var ret = new CFContext();
 			ret.Type = parameters.GetParameter(context, method, "type", CFType.Switch);
 			ret.Predicate = parameters.GetParameter(context, method, "predicate", PredicateType.Normal);
@@ -87,8 +83,7 @@ namespace Confuser.Protections.ControlFlow {
 		}
 
 		void ProcessMethod(CilBody body, CFContext ctx) {
-			uint maxStack;
-			if (!MaxStackCalculator.GetMaxStack(body.Instructions, body.ExceptionHandlers, out maxStack)) {
+		    if (!MaxStackCalculator.GetMaxStack(body.Instructions, body.ExceptionHandlers, out uint maxStack)) {
 				ctx.Context.Logger.Error("Failed to calcuate maxstack.");
 				throw new ConfuserException(null);
 			}

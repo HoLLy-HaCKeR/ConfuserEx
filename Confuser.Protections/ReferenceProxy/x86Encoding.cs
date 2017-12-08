@@ -52,7 +52,7 @@ namespace Confuser.Protections.ReferenceProxy {
 					new VariableExpression { Variable = var }, new VariableExpression { Variable = result },
 					ctx.Depth, out expression, out inverse);
 
-				reg = codeGen.GenerateX86(inverse, (v, r) => { return new[] { x86Instruction.Create(x86OpCode.POP, new x86RegisterOperand(r)) }; });
+				reg = codeGen.GenerateX86(inverse, (v, r) => new[] { x86Instruction.Create(x86OpCode.POP, new x86RegisterOperand(r)) });
 			} while (reg == null);
 
 			byte[] code = CodeGenUtils.AssembleCode(codeGen, reg.Value);
@@ -86,11 +86,8 @@ namespace Confuser.Protections.ReferenceProxy {
 		}
 
 		Tuple<MethodDef, Func<int, int>> GetKey(RPContext ctx, MethodDef init) {
-			Tuple<MethodDef, Func<int, int>> ret;
-			if (!keys.TryGetValue(init, out ret)) {
-				Func<int, int> keyFunc;
-				MethodDef native;
-				Compile(ctx, out keyFunc, out native);
+		    if (!keys.TryGetValue(init, out var ret)) {
+		        Compile(ctx, out Func<int, int> keyFunc, out MethodDef native);
 				keys[init] = ret = Tuple.Create(native, keyFunc);
 			}
 			return ret;

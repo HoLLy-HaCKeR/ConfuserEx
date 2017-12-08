@@ -78,7 +78,7 @@ namespace Confuser.Protections.ControlFlow {
 						new VariableExpression { Variable = var }, new VariableExpression { Variable = result },
 						ctx.Depth, out expression, out inverse);
 
-					reg = codeGen.GenerateX86(inverse, (v, r) => { return new[] { x86Instruction.Create(x86OpCode.POP, new x86RegisterOperand(r)) }; });
+					reg = codeGen.GenerateX86(inverse, (v, r) => new[] { x86Instruction.Create(x86OpCode.POP, new x86RegisterOperand(r)) });
 				} while (reg == null);
 
 				code = CodeGenUtils.AssembleCode(codeGen, reg.Value);

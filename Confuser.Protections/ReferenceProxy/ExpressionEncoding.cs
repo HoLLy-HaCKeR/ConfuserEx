@@ -27,11 +27,10 @@ namespace Confuser.Protections.ReferenceProxy {
 			var var = new Variable("{VAR}");
 			var result = new Variable("{RESULT}");
 
-			Expression expression;
-			ctx.DynCipher.GenerateExpressionPair(
+		    ctx.DynCipher.GenerateExpressionPair(
 				ctx.Random,
 				new VariableExpression { Variable = var }, new VariableExpression { Variable = result },
-				ctx.Depth, out expression, out inverse);
+				ctx.Depth, out Expression expression, out inverse);
 
 			expCompiled = new DMCodeGen(typeof(int), new[] { Tuple.Create("{VAR}", typeof(int)) })
 				.GenerateCIL(expression)
@@ -39,11 +38,8 @@ namespace Confuser.Protections.ReferenceProxy {
 		}
 
 		Tuple<Expression, Func<int, int>> GetKey(RPContext ctx, MethodDef init) {
-			Tuple<Expression, Func<int, int>> ret;
-			if (!keys.TryGetValue(init, out ret)) {
-				Func<int, int> keyFunc;
-				Expression inverse;
-				Compile(ctx, init.Body, out keyFunc, out inverse);
+		    if (!keys.TryGetValue(init, out var ret)) {
+			    Compile(ctx, init.Body, out var keyFunc, out Expression inverse);
 				keys[init] = ret = Tuple.Create(inverse, keyFunc);
 			}
 			return ret;

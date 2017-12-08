@@ -13,27 +13,17 @@ namespace Confuser.Protections {
 		public const string _FullId = "Ki.ControlFlow";
 		public const string _ServiceId = "Ki.ControlFlow";
 
-		public override string Name {
-			get { return "Control Flow Protection"; }
-		}
+		public override string Name => "Control Flow Protection";
 
-		public override string Description {
-			get { return "This protection mangles the code in the methods so that decompilers cannot decompile the methods."; }
-		}
+	    public override string Description => "This protection mangles the code in the methods so that decompilers cannot decompile the methods.";
 
-		public override string Id {
-			get { return _Id; }
-		}
+	    public override string Id => _Id;
 
-		public override string FullId {
-			get { return _FullId; }
-		}
+	    public override string FullId => _FullId;
 
-		public override ProtectionPreset Preset {
-			get { return ProtectionPreset.Normal; }
-		}
+	    public override ProtectionPreset Preset => ProtectionPreset.Normal;
 
-		public void ExcludeMethod(ConfuserContext context, MethodDef method) {
+	    public void ExcludeMethod(ConfuserContext context, MethodDef method) {
 			ProtectionParameters.GetParameters(context, method).Remove(this);
 		}
 
