@@ -24,27 +24,15 @@ namespace Confuser.Protections.Compress {
 			var state = seed;
 			for (int i = 0; i < 0x10; i++) {
 				switch (state % 3) {
-					case 0:
-						ret[i] = a[i] ^ b[i];
-						break;
-					case 1:
-						ret[i] = a[i] * b[i];
-						break;
-					case 2:
-						ret[i] = a[i] + b[i];
-						break;
+					case 0: ret[i] = a[i] ^ b[i]; break;
+					case 1: ret[i] = a[i] * b[i]; break;
+					case 2: ret[i] = a[i] + b[i]; break;
 				}
 				state = (state * state) % 0x2E082D35;
 				switch (state % 3) {
-					case 0:
-						ret[i] += k1;
-						break;
-					case 1:
-						ret[i] ^= k2;
-						break;
-					case 2:
-						ret[i] *= k3;
-						break;
+					case 0: ret[i] += k1; break;
+					case 1: ret[i] ^= k2; break;
+					case 2: ret[i] *= k3; break;
 				}
 				state = (state * state) % 0x2E082D35;
 			}
@@ -63,15 +51,9 @@ namespace Confuser.Protections.Compress {
 				yield return Instruction.Create(OpCodes.Ldc_I4, i);
 				yield return Instruction.Create(OpCodes.Ldelem_U4);
 				switch (state % 3) {
-					case 0:
-						yield return Instruction.Create(OpCodes.Xor);
-						break;
-					case 1:
-						yield return Instruction.Create(OpCodes.Mul);
-						break;
-					case 2:
-						yield return Instruction.Create(OpCodes.Add);
-						break;
+					case 0: yield return Instruction.Create(OpCodes.Xor); break;
+					case 1: yield return Instruction.Create(OpCodes.Mul); break;
+					case 2: yield return Instruction.Create(OpCodes.Add); break;
 				}
 				state = (state * state) % 0x2E082D35;
 				switch (state % 3) {

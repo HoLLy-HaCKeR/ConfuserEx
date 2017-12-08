@@ -173,29 +173,12 @@ namespace Confuser.Protections.AntiTamper {
 			}
 		}
 
-		protected override void WriteInlineField(BinaryWriter writer, Instruction instr) {
-			writer.Write(metadata.GetToken(instr.Operand).Raw);
-		}
-
-		protected override void WriteInlineMethod(BinaryWriter writer, Instruction instr) {
-			writer.Write(metadata.GetToken(instr.Operand).Raw);
-		}
-
-		protected override void WriteInlineSig(BinaryWriter writer, Instruction instr) {
-			writer.Write(metadata.GetToken(instr.Operand).Raw);
-		}
-
-		protected override void WriteInlineString(BinaryWriter writer, Instruction instr) {
-			writer.Write(metadata.GetToken(instr.Operand).Raw);
-		}
-
-		protected override void WriteInlineTok(BinaryWriter writer, Instruction instr) {
-			writer.Write(metadata.GetToken(instr.Operand).Raw);
-		}
-
-		protected override void WriteInlineType(BinaryWriter writer, Instruction instr) {
-			writer.Write(metadata.GetToken(instr.Operand).Raw);
-		}
+		protected override void WriteInlineField(BinaryWriter writer, Instruction instr)  => writer.Write(metadata.GetToken(instr.Operand).Raw);
+	    protected override void WriteInlineMethod(BinaryWriter writer, Instruction instr) => writer.Write(metadata.GetToken(instr.Operand).Raw);
+	    protected override void WriteInlineSig(BinaryWriter writer, Instruction instr)    => writer.Write(metadata.GetToken(instr.Operand).Raw);
+	    protected override void WriteInlineString(BinaryWriter writer, Instruction instr) => writer.Write(metadata.GetToken(instr.Operand).Raw);
+	    protected override void WriteInlineTok(BinaryWriter writer, Instruction instr)    => writer.Write(metadata.GetToken(instr.Operand).Raw);
+	    protected override void WriteInlineType(BinaryWriter writer, Instruction instr)   => writer.Write(metadata.GetToken(instr.Operand).Raw);
 	}
 
 	internal class JITBodyIndex : IChunk {
