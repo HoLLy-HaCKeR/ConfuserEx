@@ -1,4 +1,6 @@
 ﻿using System;
+using System.Diagnostics;
+using System.Reflection;
 using System.Text;
 
 namespace Confuser.Runtime
@@ -56,6 +58,13 @@ namespace Confuser.Runtime
 
 		static T Get<T>(uint id)
         {
+		    T ret = default(T);
+
+            // prevent string decryptors from invoking this method
+            if (!Equals(Assembly.GetCallingAssembly(), Assembly.GetExecutingAssembly())
+                || new StackTrace().GetFrame(1).GetMethod().DeclaringType == typeof(RuntimeMethodHandle))
+		        return ret;
+
             // demutate the id
 			id = (uint)Mutation.Placeholder((int)id);
 
@@ -63,7 +72,6 @@ namespace Confuser.Runtime
 			uint type = id >> 30;
 
             // get actual id
-			T ret = default(T);
 			id &= 0x3fffffff;
 			id <<= 2;
 
