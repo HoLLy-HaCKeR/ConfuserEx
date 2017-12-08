@@ -2,9 +2,12 @@
 using System.Diagnostics;
 using System.Threading;
 
-namespace Confuser.Runtime {
-	internal static class AntiDebugSafe {
-		static void Initialize() {
+namespace Confuser.Runtime
+{
+	internal static class AntiDebugSafe
+    {
+		static void Initialize()
+        {
 			string x = "COR";
 			var env = typeof(Environment);
 			var method = env.GetMethod("GetEnvironmentVariable", new[] { typeof(string) });
@@ -17,9 +20,9 @@ namespace Confuser.Runtime {
 			thread.Start(null);
 		}
 
-		static void Worker(object thread) {
-			var th = thread as Thread;
-			if (th == null) {
+		static void Worker(object thread)
+        {
+		    if (!(thread is Thread th)) {
 				th = new Thread(Worker);
 				th.IsBackground = true;
 				th.Start(Thread.CurrentThread);

@@ -2,12 +2,15 @@
 using System.Reflection;
 using System.Runtime.InteropServices;
 
-namespace Confuser.Runtime {
-	internal static class AntiTamperNormal {
+namespace Confuser.Runtime
+{
+	internal static class AntiTamperNormal
+    {
 		[DllImport("kernel32.dll")]
 		static extern bool VirtualProtect(IntPtr lpAddress, uint dwSize, uint flNewProtect, out uint lpflOldProtect);
 
-		static unsafe void Initialize() {
+		static unsafe void Initialize()
+        {
 			Module m = typeof(AntiTamperNormal).Module;
 			string n = m.FullyQualifiedName;
 			bool f = n.Length > 0 && n[0] == '<';

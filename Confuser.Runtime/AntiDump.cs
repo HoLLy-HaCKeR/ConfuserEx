@@ -2,12 +2,15 @@
 using System.Reflection;
 using System.Runtime.InteropServices;
 
-namespace Confuser.Runtime {
-	internal static class AntiDump {
+namespace Confuser.Runtime
+{
+	internal static class AntiDump
+    {
 		[DllImport("kernel32.dll")]
 		static extern unsafe bool VirtualProtect(byte* lpAddress, int dwSize, uint flNewProtect, out uint lpflOldProtect);
 
-		static unsafe void Initialize() {
+		static unsafe void Initialize()
+        {
 			uint old;
 			Module module = typeof(AntiDump).Module;
 			var bas = (byte*)Marshal.GetHINSTANCE(module);

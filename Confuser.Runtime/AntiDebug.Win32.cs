@@ -3,9 +3,12 @@ using System.Diagnostics;
 using System.Runtime.InteropServices;
 using System.Threading;
 
-namespace Confuser.Runtime {
-	internal static class AntiDebugWin32 {
-		static void Initialize() {
+namespace Confuser.Runtime
+{
+	internal static class AntiDebugWin32
+    {
+		static void Initialize()
+        {
 			string x = "COR";
 			if (Environment.GetEnvironmentVariable(x + "_PROFILER") != null ||
 			    Environment.GetEnvironmentVariable(x + "_ENABLE_PROFILING") != null)
@@ -25,9 +28,9 @@ namespace Confuser.Runtime {
 		[DllImport("kernel32.dll", CharSet = CharSet.Auto)]
 		static extern int OutputDebugString(string str);
 
-		static void Worker(object thread) {
-			var th = thread as Thread;
-			if (th == null) {
+		static void Worker(object thread)
+        {
+		    if (!(thread is Thread th)) {
 				th = new Thread(Worker);
 				th.IsBackground = true;
 				th.Start(Thread.CurrentThread);

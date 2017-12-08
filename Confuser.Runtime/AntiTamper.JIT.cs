@@ -3,8 +3,10 @@ using System.Reflection;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 
-namespace Confuser.Runtime {
-	internal static unsafe class AntiTamperJIT {
+namespace Confuser.Runtime
+{
+	internal static unsafe class AntiTamperJIT
+    {
 		static uint* ptr;
 		static uint len;
 		static IntPtr moduleHnd;
@@ -15,7 +17,8 @@ namespace Confuser.Runtime {
 
 		static compileMethod handler;
 
-		public static void Initialize() {
+		public static void Initialize()
+        {
 			Module m = typeof(AntiTamperNormal).Module;
 			string n = m.FullyQualifiedName;
 			bool f = n.Length > 0 && n[0] == '<';
@@ -94,7 +97,8 @@ namespace Confuser.Runtime {
 		[DllImport("kernel32.dll")]
 		static extern bool VirtualProtect(IntPtr lpAddress, uint dwSize, uint flNewProtect, out uint lpflOldProtect);
 
-		static void Hook() {
+		static void Hook()
+        {
 			ulong* ptr = stackalloc ulong[2];
 			if (ver4) {
 				ptr[0] = 0x642e74696a726c63; //clrjit.d
@@ -141,7 +145,8 @@ namespace Confuser.Runtime {
 			VirtualProtect(hookPosition, (uint)IntPtr.Size, oldPl, out oldPl);
 		}
 
-		static void ExtractLocalVars(CORINFO_METHOD_INFO* info, uint len, byte* localVar) {
+		static void ExtractLocalVars(CORINFO_METHOD_INFO* info, uint len, byte* localVar)
+        {
 			void* sigInfo;
 			if (ver4) {
 				if (IntPtr.Size == 8)
@@ -191,7 +196,8 @@ namespace Confuser.Runtime {
 			}
 		}
 
-		static uint HookHandler(IntPtr self, ICorJitInfo* comp, CORINFO_METHOD_INFO* info, uint flags, byte** nativeEntry, uint* nativeSizeOfCode) {
+		static uint HookHandler(IntPtr self, ICorJitInfo* comp, CORINFO_METHOD_INFO* info, uint flags, byte** nativeEntry, uint* nativeSizeOfCode)
+        {
 			if (info != null && info->scope == moduleHnd && info->ILCode[0] == 0x14) {
 				uint token;
 				if (ver5) {
@@ -392,7 +398,8 @@ namespace Confuser.Runtime {
 
 		#endregion
 
-		class CorMethodInfoHook {
+		class CorMethodInfoHook
+        {
 			static int ehNum = -1;
 			public CORINFO_EH_CLAUSE* clauses;
 			public IntPtr ftn;
@@ -403,21 +410,22 @@ namespace Confuser.Runtime {
 			public getEHinfo o_getEHinfo;
 			public IntPtr* oldVfTbl;
 
-			void hookEHInfo(IntPtr self, IntPtr ftn, uint EHnumber, CORINFO_EH_CLAUSE* clause) {
-				if (ftn == this.ftn) {
-					*clause = clauses[EHnumber];
-				}
-				else {
-					o_getEHinfo(self, ftn, EHnumber, clause);
-				}
-			}
+			void hookEHInfo(IntPtr self, IntPtr ftn, uint EHnumber, CORINFO_EH_CLAUSE* clause)
+            {
+                if (ftn == this.ftn)
+                    *clause = clauses[EHnumber];
+                else
+                    o_getEHinfo(self, ftn, EHnumber, clause);
+            }
 
-			public void Dispose() {
+			public void Dispose()
+            {
 				Marshal.FreeHGlobal((IntPtr)newVfTbl);
 				info->vfptr = oldVfTbl;
 			}
 
-			public static CorMethodInfoHook Hook(ICorJitInfo* comp, IntPtr ftn, CORINFO_EH_CLAUSE* clauses) {
+			public static CorMethodInfoHook Hook(ICorJitInfo* comp, IntPtr ftn, CORINFO_EH_CLAUSE* clauses)
+            {
 				ICorMethodInfo* mtdInfo = ICorStaticInfo.ICorMethodInfo(ICorDynamicInfo.ICorStaticInfo(ICorJitInfo.ICorDynamicInfo(comp)));
 				IntPtr* vfTbl = mtdInfo->vfptr;
 				const int SLOT_NUM = 0x1B;
@@ -457,7 +465,8 @@ namespace Confuser.Runtime {
 			}
 		}
 
-		class CorJitInfoHook {
+		class CorJitInfoHook
+        {
 			public CORINFO_EH_CLAUSE* clauses;
 			public IntPtr ftn;
 			public ICorJitInfo* info;
@@ -467,21 +476,21 @@ namespace Confuser.Runtime {
 			public getEHinfo o_getEHinfo;
 			public IntPtr* oldVfTbl;
 
-			void hookEHInfo(IntPtr self, IntPtr ftn, uint EHnumber, CORINFO_EH_CLAUSE* clause) {
-				if (ftn == this.ftn) {
-					*clause = clauses[EHnumber];
-				}
-				else {
-					o_getEHinfo(self, ftn, EHnumber, clause);
-				}
-			}
+			void hookEHInfo(IntPtr self, IntPtr ftn, uint EHnumber, CORINFO_EH_CLAUSE* clause)
+            {
+                if (ftn == this.ftn)
+                    *clause = clauses[EHnumber];
+                else
+                    o_getEHinfo(self, ftn, EHnumber, clause);
+            }
 
 			public void Dispose() {
 				Marshal.FreeHGlobal((IntPtr)newVfTbl);
 				info->vfptr = oldVfTbl;
 			}
 
-			public static CorJitInfoHook Hook(ICorJitInfo* comp, IntPtr ftn, CORINFO_EH_CLAUSE* clauses) {
+			public static CorJitInfoHook Hook(ICorJitInfo* comp, IntPtr ftn, CORINFO_EH_CLAUSE* clauses)
+            {
 				const int slotNum = 8;
 
 				IntPtr* vfTbl = comp->vfptr;

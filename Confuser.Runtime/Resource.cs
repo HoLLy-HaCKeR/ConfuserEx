@@ -1,97 +1,121 @@
 ﻿using System;
 using System.Reflection;
 
-namespace Confuser.Runtime {
-	internal static class Resource {
-		static Assembly c;
+namespace Confuser.Runtime
+{
+	internal static class Resource
+    {
+		static Assembly assembly;
+        
+		static void Initialize()    // very similar to constants encryption initialization
+        {
+		    const int blockSize = 0x10;
 
-		// Hmm... Too lazy.
-		static void Initialize() {
-			var l = (uint)Mutation.KeyI0;
-			uint[] q = Mutation.Placeholder(new uint[Mutation.KeyI0]);
+            // initialize encrypted buffer
+			uint length = (uint)Mutation.KeyI0;  // encrypted buffer length
+            uint[] encryptedBuffer = Mutation.Placeholder(new uint[Mutation.KeyI0]);
 
-			var k = new uint[0x10];
-			var n = (uint)Mutation.KeyI1;
-			for (int i = 0; i < 0x10; i++) {
+            // initialize key
+			uint[] key = new uint[blockSize];
+			uint n = (uint)Mutation.KeyI1;  // seed
+			for (int i = 0; i < blockSize; i++) {
 				n ^= n >> 13;
 				n ^= n << 25;
 				n ^= n >> 27;
-				k[i] = n;
+				key[i] = n;
 			}
 
-			int s = 0, d = 0;
-			var w = new uint[0x10];
-			var o = new byte[l * 4];
-			while (s < l) {
-				for (int j = 0; j < 0x10; j++)
-					w[j] = q[s + j];
-				Mutation.Crypt(w, k);
-				for (int j = 0; j < 0x10; j++) {
-					uint e = w[j];
-					o[d++] = (byte)e;
-					o[d++] = (byte)(e >> 8);
-					o[d++] = (byte)(e >> 16);
-					o[d++] = (byte)(e >> 24);
-					k[j] ^= e;
+            // decrypt the buffer
+            int index = 0;
+			uint[] tempBuffer = new uint[blockSize];
+			byte[] compressedBuffer = new byte[length * 4];
+
+			for (int offset = 0; offset < length; offset += blockSize)
+            {
+                // copy block to temp buffer
+                for (int i = 0; i < blockSize; i++)
+                    tempBuffer[i] = encryptedBuffer[offset + i];
+
+                // decrypt buffer with key
+                Mutation.Crypt(tempBuffer, key);
+
+                // copy uint to compressed buffer, and update key
+                for (int i = 0; i < blockSize; i++) {
+					uint e = tempBuffer[i];
+					compressedBuffer[index++] = (byte)(e >> (8 * 0));
+					compressedBuffer[index++] = (byte)(e >> (8 * 1));
+					compressedBuffer[index++] = (byte)(e >> (8 * 2));
+					compressedBuffer[index++] = (byte)(e >> (8 * 3));
+					key[i] ^= e;
 				}
-				s += 0x10;
 			}
 
-			c = Assembly.Load(Lzma.Decompress(o));
+            //decompress the assembly
+			assembly = Assembly.Load(Lzma.Decompress(compressedBuffer));
 			AppDomain.CurrentDomain.AssemblyResolve += Handler;
 		}
 
-		static Assembly Handler(object sender, ResolveEventArgs args) {
-			if (c.FullName == args.Name)
-				return c;
-			return null;
-		}
-	}
+		static Assembly Handler(object sender, ResolveEventArgs args) => assembly.FullName == args.Name ? assembly : null;
+    }
 
-	internal static class Resource_Packer {
-		static Assembly c;
+	internal static class Resource_Packer
+    {
+		static Assembly assembly;
 
 		// Hmm... Too lazy.
-		static void Initialize() {
-			var l = (uint)Mutation.KeyI0;
-			uint[] q = Mutation.Placeholder(new uint[Mutation.KeyI0]);
+		static void Initialize()
+        {
+		    const int blockSize = 0x10;
 
-			var k = new uint[0x10];
-			var n = (uint)Mutation.KeyI1;
-			for (int i = 0; i < 0x10; i++) {
-				n ^= n >> 13;
-				n ^= n << 25;
-				n ^= n >> 27;
-				k[i] = n;
-			}
+		    // initialize encrypted buffer
+		    uint length = (uint)Mutation.KeyI0;  // encrypted buffer length
+		    uint[] encryptedBuffer = Mutation.Placeholder(new uint[Mutation.KeyI0]);
 
-			int s = 0, d = 0;
-			var w = new uint[0x10];
-			var o = new byte[l * 4];
-			while (s < l) {
-				for (int j = 0; j < 0x10; j++)
-					w[j] = q[s + j];
-				Mutation.Crypt(w, k);
-				for (int j = 0; j < 0x10; j++) {
-					uint e = w[j];
-					o[d++] = (byte)e;
-					o[d++] = (byte)(e >> 8);
-					o[d++] = (byte)(e >> 16);
-					o[d++] = (byte)(e >> 24);
-					k[j] ^= e;
-				}
-				s += 0x10;
-			}
+		    // initialize key
+		    uint[] key = new uint[blockSize];
+		    uint n = (uint)Mutation.KeyI1;  // seed
+		    for (int i = 0; i < blockSize; i++)
+		    {
+		        n ^= n >> 13;
+		        n ^= n << 25;
+		        n ^= n >> 27;
+		        key[i] = n;
+		    }
 
-			c = Assembly.Load(Lzma.Decompress(o));
+		    // decrypt the buffer
+		    int index = 0;
+		    uint[] tempBuffer = new uint[blockSize];
+		    byte[] compressedBuffer = new byte[length * 4];
+
+		    for (int offset = 0; offset < length; offset += blockSize)
+		    {
+		        // copy block to temp buffer
+		        for (int i = 0; i < blockSize; i++)
+		            tempBuffer[i] = encryptedBuffer[offset + i];
+
+		        // decrypt buffer with key
+		        Mutation.Crypt(tempBuffer, key);
+
+		        // copy uint to compressed buffer, and update key
+		        for (int i = 0; i < blockSize; i++)
+		        {
+		            uint e = tempBuffer[i];
+		            compressedBuffer[index++] = (byte)(e >> (8 * 0));
+		            compressedBuffer[index++] = (byte)(e >> (8 * 1));
+		            compressedBuffer[index++] = (byte)(e >> (8 * 2));
+		            compressedBuffer[index++] = (byte)(e >> (8 * 3));
+		            key[i] ^= e;
+		        }
+		    }
+
+            assembly = Assembly.Load(Lzma.Decompress(compressedBuffer));
 			AppDomain.CurrentDomain.ResourceResolve += Handler;
 		}
 
-		static Assembly Handler(object sender, ResolveEventArgs args) {
-			var n = c.GetManifestResourceNames();
-			if (Array.IndexOf(n, args.Name) != -1)
-				return c;
-			return null;
+		static Assembly Handler(object sender, ResolveEventArgs args)
+		{
+		    string[] n = assembly.GetManifestResourceNames();
+			return Array.IndexOf(n, args.Name) != -1 ? assembly : null;
 		}
 	}
 }

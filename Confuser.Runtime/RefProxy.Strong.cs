@@ -2,21 +2,24 @@
 using System.Reflection;
 using System.Reflection.Emit;
 
-namespace Confuser.Runtime {
-	internal class RefProxyKey : Attribute {
+namespace Confuser.Runtime
+{
+	internal class RefProxyKey : Attribute
+    {
 		readonly int key;
 
-		public RefProxyKey(int key) {
+		public RefProxyKey(int key)
+        {
 			this.key = Mutation.Placeholder(key);
 		}
 
-		public override int GetHashCode() {
-			return key;
-		}
-	}
+		public override int GetHashCode() => key;
+    }
 
-	internal static class RefProxyStrong {
-		internal static void Initialize(RuntimeFieldHandle field, byte opKey) {
+	internal static class RefProxyStrong
+    {
+		internal static void Initialize(RuntimeFieldHandle field, byte opKey)
+        {
 			FieldInfo fieldInfo = FieldInfo.GetFieldFromHandle(field);
 			byte[] sig = fieldInfo.Module.ResolveSignature(fieldInfo.MetadataToken);
 			int len = sig.Length;

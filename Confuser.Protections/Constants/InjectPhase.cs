@@ -81,7 +81,7 @@ namespace Confuser.Protections.Constants {
 					context.CurrentModule.GlobalType.Remove((MethodDef)member);
 					continue;
 				}
-				if (member.Name == "b")
+				if (member.Name == "buffer")
 					moduleCtx.BufferField = (FieldDef)member;
 				else if (member.Name == "Initialize")
 					moduleCtx.InitMethod = (MethodDef)member;
@@ -119,7 +119,7 @@ namespace Confuser.Protections.Constants {
 					}
 					else if (instr.OpCode == OpCodes.Ldsfld &&
 					         method.DeclaringType.Name == "Constant") {
-						if (field.Name == "b") instr.Operand = moduleCtx.BufferField;
+						if (field.Name == "buffer") instr.Operand = moduleCtx.BufferField;
 						else throw new UnreachableException();
 					}
 				}
