@@ -127,15 +127,19 @@ namespace Confuser.Core {
 		internal void ExecuteStage(PipelineStage stage, Action<ConfuserContext> func, Func<IList<IDnlibDef>> targets, ConfuserContext context) {
 			foreach (ProtectionPhase pre in preStage[stage]) {
 				context.CheckCancellation();
-				context.Logger.DebugFormat("Executing '{0}' phase...", pre.Name);
-				pre.Execute(context, new ProtectionParameters(pre.Parent, Filter(context, targets(), pre)));
+			    var targetList = Filter(context, targets(), pre);
+                if (targetList.Any())
+				    context.Logger.DebugFormat("Executing '{0}' phase...", pre.Name);
+				pre.Execute(context, new ProtectionParameters(pre.Parent, targetList));
 			}
 			context.CheckCancellation();
 			func(context);
 			context.CheckCancellation();
 			foreach (ProtectionPhase post in postStage[stage]) {
-				context.Logger.DebugFormat("Executing '{0}' phase...", post.Name);
-				post.Execute(context, new ProtectionParameters(post.Parent, Filter(context, targets(), post)));
+			    var targetList = Filter(context, targets(), post);
+                if (targetList.Any())
+                    context.Logger.DebugFormat("Executing '{0}' phase...", post.Name);
+				post.Execute(context, new ProtectionParameters(post.Parent, targetList));
 				context.CheckCancellation();
 			}
 		}
