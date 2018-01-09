@@ -9,62 +9,77 @@ namespace Confuser.Runtime
 		[DllImport("kernel32.dll")]
 		static extern bool VirtualProtect(IntPtr lpAddress, uint dwSize, uint flNewProtect, out uint lpflOldProtect);
 
+        /// <summary>
+        /// Probably decrypts method declarations in memory after they were 
+        /// loaded from the PE table?
+        /// </summary>
 		static unsafe void Initialize()
         {
-			Module m = typeof(AntiTamperNormal).Module;
-			string n = m.FullyQualifiedName;
-			bool f = n.Length > 0 && n[0] == '<';
-			var b = (byte*)Marshal.GetHINSTANCE(m);
-			byte* p = b + *(uint*)(b + 0x3c);
-			ushort s = *(ushort*)(p + 0x6);
-			ushort o = *(ushort*)(p + 0x14);
 
-			uint* e = null;
-			uint l = 0;
-			var r = (uint*)(p + 0x18 + o);
-			uint z = (uint)Mutation.KeyI1, x = (uint)Mutation.KeyI2, c = (uint)Mutation.KeyI3, v = (uint)Mutation.KeyI4;
-			for (int i = 0; i < s; i++) {
-				uint g = (*r++) * (*r++);
+			Module myMod = typeof(AntiTamperNormal).Module;
+			string name = myMod.FullyQualifiedName;
+			bool n = name.Length > 0 && name[0] == '<'; //module is special in some kind of way. Loaded from memory? netmodule?
+
+            //memory magic to find addresses
+            //see: https://upload.wikimedia.org/wikipedia/commons/1/1b/Portable_Executable_32_bit_Structure_in_SVG_fixed.svg
+            var modBase = (byte*)Marshal.GetHINSTANCE(myMod);   //find where the module is loaded in memory
+			byte* peData = modBase + *(uint*)(modBase + 0x3c);
+			ushort noSections = *(ushort*)(peData + 0x6);
+			ushort optSize = *(ushort*)(peData + 0x14);
+
+
+			uint* dataPtr = null;
+			uint encSize = 0;
+			var secTable = (uint*)(peData + 0x18 + optSize);
+			uint mut1 = (uint)Mutation.KeyI1, mut2 = (uint)Mutation.KeyI2, mut3 = (uint)Mutation.KeyI3, mut4 = (uint)Mutation.KeyI4;
+			for (int i = 0; i < noSections; i++) {
+				uint g = (*secTable++) * (*secTable++);
+
 				if (g == (uint)Mutation.KeyI0) {
-					e = (uint*)(b + (f ? *(r + 3) : *(r + 1)));
-					l = (f ? *(r + 2) : *(r + 0)) >> 2;
+					dataPtr = (uint*)(modBase + (n ? *(secTable + 3) : *(secTable + 1)));
+					encSize = (n ? *(secTable + 2) : *(secTable + 0)) >> 2;
 				}
 				else if (g != 0) {
-					var q = (uint*)(b + (f ? *(r + 3) : *(r + 1)));
-					uint j = *(r + 2) >> 2;
-					for (uint k = 0; k < j; k++) {
-						uint t = (z ^ (*q++)) + x + c * v;
-						z = x;
-						x = c;
-						x = v;
-						v = t;
+					var data = (uint*)(modBase + (n ? *(secTable + 3) : *(secTable + 1)));
+					uint size = *(secTable + 2) >> 2;
+					for (uint k = 0; k < size; k++) {
+						uint tmp = (mut1 ^ (*data++)) + mut2 + mut3 * mut4;
+						mut1 = mut2;
+						mut2 = mut3;    //unused
+						mut2 = mut4;
+						mut4 = tmp;
 					}
 				}
-				r += 8;
+				secTable += 8;
 			}
 
-			uint[] y = new uint[0x10], d = new uint[0x10];
+            //DeriveKey
+			uint[] key = new uint[0x10], cryptKey = new uint[0x10];
 			for (int i = 0; i < 0x10; i++) {
-				y[i] = v;
-				d[i] = x;
-				z = (x >> 5) | (x << 27);
-				x = (c >> 3) | (c << 29);
-				c = (v >> 7) | (v << 25);
-				v = (z >> 11) | (z << 21);
+				key[i] = mut4;
+				cryptKey[i] = mut2;
+
+                //shift the bytes around
+				mut1 = (mut2 >> 5) | (mut2 << 27);
+				mut2 = (mut3 >> 3) | (mut3 << 29);
+				mut3 = (mut4 >> 7) | (mut4 << 25);
+				mut4 = (mut1 >> 11) | (mut1 << 21);
 			}
-			Mutation.Crypt(y, d);
+			Mutation.Crypt(key, cryptKey);
 
-			uint w = 0x40;
-			VirtualProtect((IntPtr)e, l << 2, w, out w);
+            //unprotect
+			uint prot = 0x40;  //x/r/w
+			VirtualProtect((IntPtr)dataPtr, encSize << 2, prot, out prot);
 
-			if (w == 0x40)
-				return;
+			if (prot == 0x40)   //if it already was xrw, don't decrypt
+				return;         //it means that the code was already executable (?)
 
-			uint h = 0;
-			for (uint i = 0; i < l; i++) {
-				*e ^= y[h & 0xf];
-				y[h & 0xf] = (y[h & 0xf] ^ (*e++)) + 0x3dbb2819;
-				h++;
+            //do actual decrypting
+			uint xorKeyIndex = 0;
+			for (uint i = 0; i < encSize; i++) {
+				*dataPtr ^= key[xorKeyIndex & 0xf];
+				key[xorKeyIndex & 0xf] = (key[xorKeyIndex & 0xf] ^ (*dataPtr++)) + 0x3dbb2819;
+				xorKeyIndex++;
 			}
 		}
 	}

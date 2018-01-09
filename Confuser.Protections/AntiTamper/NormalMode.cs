@@ -15,22 +15,22 @@ using MethodBody = dnlib.DotNet.Writer.MethodBody;
 
 namespace Confuser.Protections.AntiTamper {
 	internal class NormalMode : IModeHandler {
-		uint c;
+		uint mut3;
 		IKeyDeriver deriver;
 
 		List<MethodDef> methods;
 		uint name1, name2;
 		RandomGenerator random;
-		uint v;
-		uint x;
-		uint z;
+		uint mut4;
+		uint mut2;
+		uint mut1;
 
 		public void HandleInject(AntiTamperProtection parent, ConfuserContext context, ProtectionParameters parameters) {
 			random = context.Registry.GetService<IRandomService>().GetRandomGenerator(parent.FullId);
-			z = random.NextUInt32();
-			x = random.NextUInt32();
-			c = random.NextUInt32();
-			v = random.NextUInt32();
+			mut1 = random.NextUInt32();
+			mut2 = random.NextUInt32();
+			mut3 = random.NextUInt32();
+			mut4 = random.NextUInt32();
 			name1 = random.NextUInt32() & 0x7f7f7f7f;
 			name2 = random.NextUInt32() & 0x7f7f7f7f;
 
@@ -78,7 +78,7 @@ namespace Confuser.Protections.AntiTamper {
 
 			MutationHelper.InjectKeys(initMethod,
 			                          new[] { 0, 1, 2, 3, 4 },
-			                          new[] { (int)(name1 * name2), (int)z, (int)x, (int)c, (int)v });
+			                          new[] { (int)(name1 * name2), (int)mut1, (int)mut2, (int)mut3, (int)mut4 });
 
 			var name = context.Registry.GetService<INameService>();
 			var marker = context.Registry.GetService<IMarkerService>();
@@ -183,6 +183,7 @@ namespace Confuser.Protections.AntiTamper {
 			ushort optSize = reader.ReadUInt16();
 			stream.Position += 2 + optSize;
 
+            //at section table now
 			uint encLoc = 0, encSize = 0;
 			int origSects = -1;
 			if (writer is NativeModuleWriter && writer.Module is ModuleDefMD)
@@ -232,11 +233,11 @@ namespace Confuser.Protections.AntiTamper {
 			size >>= 2;
 			for (uint i = 0; i < size; i++) {
 				uint data = reader.ReadUInt32();
-				uint tmp = (z ^ data) + x + c * v;
-				z = x;
-				x = c;
-				x = v;
-				v = tmp;
+				uint tmp = (mut1 ^ data) + mut2 + mut3 * mut4;
+				mut1 = mut2;
+				mut2 = mut3;
+				mut2 = mut4;
+				mut4 = tmp;
 			}
 			stream.Position = original;
 		}
@@ -244,12 +245,12 @@ namespace Confuser.Protections.AntiTamper {
 		uint[] DeriveKey() {
 			uint[] dst = new uint[0x10], src = new uint[0x10];
 			for (int i = 0; i < 0x10; i++) {
-				dst[i] = v;
-				src[i] = x;
-				z = (x >> 5) | (x << 27);
-				x = (c >> 3) | (c << 29);
-				c = (v >> 7) | (v << 25);
-				v = (z >> 11) | (z << 21);
+				dst[i] = mut4;
+				src[i] = mut2;
+				mut1 = (mut2 >> 5) | (mut2 << 27);
+				mut2 = (mut3 >> 3) | (mut3 << 29);
+				mut3 = (mut4 >> 7) | (mut4 << 25);
+				mut4 = (mut1 >> 11) | (mut1 << 21);
 			}
 			return deriver.DeriveKey(dst, src);
 		}
