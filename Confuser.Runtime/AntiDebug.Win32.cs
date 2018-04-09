@@ -5,69 +5,69 @@ using System.Threading;
 
 namespace Confuser.Runtime
 {
-	internal static class AntiDebugWin32
+    internal static class AntiDebugWin32
     {
-		static void Initialize()
+        static void Initialize()
         {
-			string x = "COR";
-			if (Environment.GetEnvironmentVariable(x + "_PROFILER") != null ||
-			    Environment.GetEnvironmentVariable(x + "_ENABLE_PROFILING") != null)
-				Environment.FailFast(null);
+            string x = "COR";
+            if (Environment.GetEnvironmentVariable(x + "_PROFILER") != null ||
+                Environment.GetEnvironmentVariable(x + "_ENABLE_PROFILING") != null)
+                Environment.FailFast(null);
 
-			var thread = new Thread(Worker);
-			thread.IsBackground = true;
-			thread.Start(null);
-		}
+            var thread = new Thread(Worker);
+            thread.IsBackground = true;
+            thread.Start(null);
+        }
 
-		[DllImport("kernel32.dll")]
-		static extern bool CloseHandle(IntPtr hObject);
+        [DllImport("kernel32.dll")]
+        static extern bool CloseHandle(IntPtr hObject);
 
-		[DllImport("kernel32.dll")]
-		static extern bool IsDebuggerPresent();
+        [DllImport("kernel32.dll")]
+        static extern bool IsDebuggerPresent();
 
-		[DllImport("kernel32.dll", CharSet = CharSet.Auto)]
-		static extern int OutputDebugString(string str);
+        [DllImport("kernel32.dll", CharSet = CharSet.Auto)]
+        static extern int OutputDebugString(string str);
 
-		static void Worker(object thread)
+        static void Worker(object thread)
         {
-		    if (!(thread is Thread th)) {
-				th = new Thread(Worker);
-				th.IsBackground = true;
-				th.Start(Thread.CurrentThread);
-				Thread.Sleep(500);
-			}
-			while (true) {
-				// Managed
-				if (Debugger.IsAttached || Debugger.IsLogging())
-					Environment.FailFast("");
+            if (!(thread is Thread th)) {
+                th = new Thread(Worker);
+                th.IsBackground = true;
+                th.Start(Thread.CurrentThread);
+                Thread.Sleep(500);
+            }
 
-				// IsDebuggerPresent
-				if (IsDebuggerPresent())
-					Environment.FailFast("");
+            while (true) {
+                // Managed
+                if (Debugger.IsAttached || Debugger.IsLogging())
+                    Environment.FailFast("");
 
-				// OpenProcess
-				Process ps = Process.GetCurrentProcess();
-				if (ps.Handle == IntPtr.Zero)
-					Environment.FailFast("");
-				ps.Close();
+                // IsDebuggerPresent
+                if (IsDebuggerPresent())
+                    Environment.FailFast("");
 
-				// OutputDebugString
-				if (OutputDebugString("") > IntPtr.Size)
-					Environment.FailFast("");
+                // OpenProcess
+                Process ps = Process.GetCurrentProcess();
+                if (ps.Handle == IntPtr.Zero)
+                    Environment.FailFast("");
+                ps.Close();
 
-				// CloseHandle
-				try {
-					CloseHandle(IntPtr.Zero);
-				}
-				catch {
-					Environment.FailFast("");
-				}
+                // OutputDebugString
+                if (OutputDebugString("") > IntPtr.Size)
+                    Environment.FailFast("");
 
-				if (!th.IsAlive)
-					Environment.FailFast("");
+                // CloseHandle
+                try {
+                    CloseHandle(IntPtr.Zero);
+                } catch {
+                    Environment.FailFast("");
+                }
 
-				Thread.Sleep(1000);
-			}
-		}
-	}
+                if (!th.IsAlive)
+                    Environment.FailFast("");
+
+                Thread.Sleep(1000);
+            }
+        }
+    }
 }

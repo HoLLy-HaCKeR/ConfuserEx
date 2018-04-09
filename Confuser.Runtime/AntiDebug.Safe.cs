@@ -4,39 +4,40 @@ using System.Threading;
 
 namespace Confuser.Runtime
 {
-	internal static class AntiDebugSafe
+    internal static class AntiDebugSafe
     {
-		static void Initialize()
+        static void Initialize()
         {
-			string x = "COR";
-			var env = typeof(Environment);
-			var method = env.GetMethod("GetEnvironmentVariable", new[] { typeof(string) });
-			if (method != null &&
-			    "1".Equals(method.Invoke(null, new object[] { x + "_ENABLE_PROFILING" })))
-				Environment.FailFast(null);
+            string x = "COR";
+            var env = typeof(Environment);
+            var method = env.GetMethod("GetEnvironmentVariable", new[] {typeof(string)});
+            if (method != null &&
+                "1".Equals(method.Invoke(null, new object[] {x + "_ENABLE_PROFILING"})))
+                Environment.FailFast(null);
 
-			var thread = new Thread(Worker);
-			thread.IsBackground = true;
-			thread.Start(null);
-		}
+            var thread = new Thread(Worker);
+            thread.IsBackground = true;
+            thread.Start(null);
+        }
 
-		static void Worker(object thread)
+        static void Worker(object thread)
         {
-		    if (!(thread is Thread th)) {
-				th = new Thread(Worker);
-				th.IsBackground = true;
-				th.Start(Thread.CurrentThread);
-				Thread.Sleep(500);
-			}
-			while (true) {
-				if (Debugger.IsAttached || Debugger.IsLogging())
-					Environment.FailFast(null);
+            if (!(thread is Thread th)) {
+                th = new Thread(Worker);
+                th.IsBackground = true;
+                th.Start(Thread.CurrentThread);
+                Thread.Sleep(500);
+            }
 
-				if (!th.IsAlive)
-					Environment.FailFast(null);
+            while (true) {
+                if (Debugger.IsAttached || Debugger.IsLogging())
+                    Environment.FailFast(null);
 
-				Thread.Sleep(1000);
-			}
-		}
-	}
+                if (!th.IsAlive)
+                    Environment.FailFast(null);
+
+                Thread.Sleep(1000);
+            }
+        }
+    }
 }
